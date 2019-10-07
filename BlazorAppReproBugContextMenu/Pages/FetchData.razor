@@ -1,0 +1,67 @@
+﻿@page "/fetchdata"
+
+@using BlazorAppReproBugContextMenu.Data
+@inject WeatherForecastService ForecastService
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from a service.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <BlazorContextMenu.ContextMenuTrigger MenuId="@($"contextMenuTest")">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </BlazorContextMenu.ContextMenuTrigger>
+    <BlazorContextMenu.ContextMenu Id="@($"contextMenuTest")" OnAppearing="@OnMenuAppearing">
+        <BlazorContextMenu.Item OnClick="@(() => ClickElement())"
+              Visible="@IsContextMenuTargetIdFound">
+            Test Item
+        </BlazorContextMenu.Item>
+    </BlazorContextMenu.ContextMenu>
+
+}
+
+@code {
+    WeatherForecast[] forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+    }
+
+    protected bool IsContextMenuTargetIdFound { get; set; }
+
+    protected void ClickElement()
+    {
+
+    }
+
+    protected void OnMenuAppearing(BlazorContextMenu.MenuAppearingEventArgs menuArgs)
+    {
+        this.IsContextMenuTargetIdFound = !string.IsNullOrEmpty(menuArgs.ContextMenuTargetId);
+    }
+}
